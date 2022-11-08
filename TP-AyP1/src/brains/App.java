@@ -10,9 +10,9 @@ import game.GameStudent;
 
 public class App {
 	public static void main(String[] args) {
-		GameMode gameMode = GameMode.NORMAL;
+		GameMode gameMode = GameMode.BATTLE_ROYALE;
 		MyBrain myBrain = new MyBrain();
-		GameStudent.start(gameMode, 0, 12, GameDifficulty.HARD, obstacleMap(gameMode), myBrain);
+		GameStudent.start(gameMode, 0, 3, GameDifficulty.HARD, obstacleMap(gameMode), myBrain);
 		// Pueden probar multiples copias de su Brain o varias copias distintas enviado
 		// un array en vez del objeto
 	}
