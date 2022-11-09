@@ -1,5 +1,6 @@
 package brains;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,33 +28,15 @@ public class MyBrain extends Brain {
 		List<List<Point>> enemies = info.getEnemies();
 		List<Point> obstacles = info.getObstacles();
 		System.out.println(fruits);
-		buscarCosaMasCercana(fruits, snake.get(0).getX(), snake.get(0).getY());
 		// completar con la lógica necesaria para mover la serpiente,
 		// intentando comer la mayor cantidad de frutas y sobrevivir
 		// el mayor tiempo posible.
 
-		int posicionX = fruits.get(0).getX();
-		int posicionY = fruits.get(0).getY();
-		int posicionXSnake = snake.get(0).getX();
-		int posicionYSnake = snake.get(0).getY();
-
-		System.out.println(posicionX + " " + posicionY);
-		System.out.println("snake: " + posicionXSnake + " " + posicionYSnake);
-		System.out.println(enemies);
-		for (int i = 1; i < fruits.size(); i++) {
-			System.out.println("distancia de fruta 1: "
-					+ (Math.abs((posicionX - posicionXSnake)) + Math.abs((posicionY - posicionYSnake))));
-			System.out.println("distancia de fruta 2: " + (Math.abs((fruits.get(i).getX() - posicionXSnake))
-					+ Math.abs(fruits.get(i).getY() - posicionYSnake)));
-
-			if (Math.abs((posicionX - posicionXSnake)) + Math.abs((posicionY - posicionYSnake)) > Math
-					.abs((fruits.get(i).getX() - posicionXSnake)) + Math.abs(fruits.get(i).getY() - posicionYSnake)) {
-				System.out.println("se reemplaza el valor por: " + fruits.get(i));
-				posicionX = fruits.get(i).getX();
-				posicionY = fruits.get(i).getY();
-			}
-		}
-		return moveToFruit(snake, obstacles, posicionX, posicionY, previous);
+		int[] posicionXY = new int[2];
+		
+		posicionXY = buscarCosaMasCercana(snake,fruits);
+		
+		return moveToFruit(snake, obstacles, posicionXY[0], posicionXY[1], previous);
 
 	}
 
@@ -61,33 +44,18 @@ public class MyBrain extends Brain {
 			Direction previous) {
 		// comprueba si la vivorita esta en el mismo lugar, si no lo esta ejecuta
 		while (snake.get(0).getX() != masCercanaX || snake.get(0).getY() != masCercanaY) {
-
-			int posicionX = obstacles.get(0).getX();
-			int posicionY = obstacles.get(0).getY();
-			int posicionXSnake = snake.get(0).getX();
-			int posicionYSnake = snake.get(0).getY();
-			System.out.println(obstacles.size());
-			for (int i = 1; i < obstacles.size(); i++) {
-//				System.out.println("distancia del obstaculo" + i+ ": " + (Math.abs((posicionX - posicionXSnake)) + Math.abs(( posicionY - posicionYSnake))));
-//				System.out.println("distancia del obstaculo 2: " + (Math.abs((obstacles.get(i).getX() - posicionXSnake)) + Math.abs(obstacles.get(i).getY() - posicionYSnake)));
-//				
-
-				if (Math.abs((posicionX - posicionXSnake))
-						+ Math.abs((posicionY - posicionYSnake)) > Math.abs((obstacles.get(i).getX() - posicionXSnake))
-								+ Math.abs(obstacles.get(i).getY() - posicionYSnake)) {
-					// System.out.println("se reemplaza el valor por: " + obstacles.get(i));
-					posicionX = obstacles.get(i).getX();
-					posicionY = obstacles.get(i).getY();
-				}
-			}
-
-			boolean comprobarQueNoChocaIzquierda = snake.get(0).getX() - 1 != posicionX
-					|| snake.get(0).getY() != posicionY;
-			boolean comprobarQueNoChocaAbajo = snake.get(0).getX() != posicionX || snake.get(0).getY() - 1 != posicionY;
-			boolean comprobarQueNoChocaArriba = snake.get(0).getX() != posicionX
-					|| snake.get(0).getY() + 1 != posicionY;
-			boolean comprobarQueNoChocaDerecha = snake.get(0).getX() + 1 != posicionX
-					|| snake.get(0).getY() != posicionY;
+			int[] posicionXY = new int[2];
+		
+			posicionXY = buscarCosaMasCercana(snake,obstacles);
+			
+			System.out.println(posicionXY[0] + " valores cy " + posicionXY[1]);
+			boolean comprobarQueNoChocaIzquierda = snake.get(0).getX() - 1 != posicionXY[0]
+					|| snake.get(0).getY() != posicionXY[1];
+			boolean comprobarQueNoChocaAbajo = snake.get(0).getX() != posicionXY[0] || snake.get(0).getY() - 1 != posicionXY[1];
+			boolean comprobarQueNoChocaArriba = snake.get(0).getX() != posicionXY[0]
+					|| snake.get(0).getY() + 1 != posicionXY[1];
+			boolean comprobarQueNoChocaDerecha = snake.get(0).getX() + 1 != posicionXY[0]
+					|| snake.get(0).getY() != posicionXY[1];
 
 			// fruta a la izquierda
 			if (snake.get(0).getX() > masCercanaX) {
@@ -159,73 +127,26 @@ public class MyBrain extends Brain {
 		return Direction.DOWN;
 	}
 
-	/*
-	 * x = la posicion de la cabeza del snake y = la posicion de la cabeza del snake
-	 * cosa = las posiciones en el mapa donde hay algo
-	 */
-//
-//	public Posicion buscarCosaMasCercana(List<Point> cosa, int x, int y) {
-//
-//		// validarCasillero(x,y, cosa);
-//
-//		Posicion posicionDelObjeto = new Posicion();
-//		// Se crea un flag que pasa a ser verdadero cuando encuentra algo
-//		boolean cosaEncontrada = false;
-//
-//		// El contador comienza en la distancia mas chica que puede analizar
-//		int contador = 1;
-//
-//		while (!cosaEncontrada || contador < 38) {
-//
-//			int i = contador;
-//			while (i > 0) {
-//
-//				int j = 0;
-//				do {
-//
-//					if (cosa.get(0).getX() + 1 == cosa && cosas[x - 1 + i][y - 1 + j] != Cosas.NADA) {
-//
-//						posicionDelObjeto.x = x + i;
-//						posicionDelObjeto.y = y + j;
-//						objetoEncontrado = true;
-//
-//					} else if (cosas[x - 1 - i][y - 1 - j] == cosa && cosas[x - 1 - i][y - 1 - j] != Cosas.NADA) {
-//
-//						posicionDelObjeto.x = x - i;
-//						posicionDelObjeto.y = y - j;
-//						objetoEncontrado = true;
-//
-//					} else if (cosas[x - 1 - i][y - 1 + j] == cosa && cosas[x - 1 - i][y - 1 + j] != Cosas.NADA) {
-//
-//						posicionDelObjeto.x = x - i;
-//						posicionDelObjeto.y = y + j;
-//						objetoEncontrado = true;
-//
-//					} else if (cosas[x - 1 + i][y - 1 - j] == cosa && cosas[x - 1 + i][y - 1 - j] != Cosas.NADA) {
-//
-//						posicionDelObjeto.x = x + i;
-//						posicionDelObjeto.y = y - j;
-//						objetoEncontrado = true;
-//
-//					}
-//					i--;
-//					j++;
-//				} while (j <= i + contador);
-//			}
-//			contador++;
-//		}
-//
-//		if (!objetoEncontrado) {
-//			throw new Error("No se encontro ningun objeto de ese tipo en el mapa o la accion es invalida");
-//		}
-//		return posicionDelObjeto;
-//	}
 
-	class Posicion {
-		int x, y;
-	}
+	public int[] buscarCosaMasCercana(List<Point>snake,List<Point> cosa) {
+		int[] positions = new int[2];
+		positions[0] = cosa.get(0).getX();
+		positions[1] = cosa.get(0).getY();
+		
+		
+		int posicionXSnake = snake.get(0).getX();
+		int posicionYSnake = snake.get(0).getY();
+		for (int i = 1; i < cosa.size(); i++) {
 
-	public void buscarCosaMasCercana(List<Point> cosa, int x, int y) {
-
+			if (Math.abs((positions[0] - posicionXSnake))
+					+ Math.abs((positions[1] - posicionYSnake)) > Math.abs((cosa.get(i).getX() - posicionXSnake))
+							+ Math.abs(cosa.get(i).getY() - posicionYSnake)) {
+				positions[0] = cosa.get(i).getX();
+				positions[1] = cosa.get(i).getY();
+				System.out.println(cosa.get(i));
+			}
+		}
+		System.out.println(positions[0] + " posiciones " + positions[1]);
+		return positions;
 	}
 }
