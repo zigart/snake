@@ -39,41 +39,75 @@ public class MyBrain extends Brain {
 
 		System.out.println(posicionX + " " + posicionY);
 		System.out.println("snake: " + posicionXSnake + " " + posicionYSnake);
-
-		
+		System.out.println(enemies);
 		for (int i = 1; i < fruits.size(); i++) {
-			System.out.println("distancia de fruta 1: " + (Math.abs((posicionX - posicionXSnake)) + Math.abs(( posicionY - posicionYSnake))));
-			System.out.println("distancia de fruta 2: " + (Math.abs((fruits.get(i).getX() - posicionXSnake)) + Math.abs(fruits.get(i).getY() - posicionYSnake)));
-			
-			
-			if (Math.abs((posicionX - posicionXSnake)) + Math.abs(( posicionY - posicionYSnake)) > Math
+			System.out.println("distancia de fruta 1: "
+					+ (Math.abs((posicionX - posicionXSnake)) + Math.abs((posicionY - posicionYSnake))));
+			System.out.println("distancia de fruta 2: " + (Math.abs((fruits.get(i).getX() - posicionXSnake))
+					+ Math.abs(fruits.get(i).getY() - posicionYSnake)));
+
+			if (Math.abs((posicionX - posicionXSnake)) + Math.abs((posicionY - posicionYSnake)) > Math
 					.abs((fruits.get(i).getX() - posicionXSnake)) + Math.abs(fruits.get(i).getY() - posicionYSnake)) {
 				System.out.println("se reemplaza el valor por: " + fruits.get(i));
 				posicionX = fruits.get(i).getX();
 				posicionY = fruits.get(i).getY();
 			}
 		}
-
-		return moveToFruit(snake, posicionX, posicionY, previous);
+		return moveToFruit(snake, obstacles, posicionX, posicionY, previous);
 
 	}
 
-	private Direction moveToFruit(List<Point> snake, int masCercanaX, int masCercanaY, Direction previous) {
+	private Direction moveToFruit(List<Point> snake, List<Point> obstacles, int masCercanaX, int masCercanaY,
+			Direction previous) {
 		// comprueba si la vivorita esta en el mismo lugar, si no lo esta ejecuta
 		while (snake.get(0).getX() != masCercanaX || snake.get(0).getY() != masCercanaY) {
+
+			int posicionX = obstacles.get(0).getX();
+			int posicionY = obstacles.get(0).getY();
+			int posicionXSnake = snake.get(0).getX();
+			int posicionYSnake = snake.get(0).getY();
+			System.out.println(obstacles.size());
+			for (int i = 1; i < obstacles.size(); i++) {
+//				System.out.println("distancia del obstaculo" + i+ ": " + (Math.abs((posicionX - posicionXSnake)) + Math.abs(( posicionY - posicionYSnake))));
+//				System.out.println("distancia del obstaculo 2: " + (Math.abs((obstacles.get(i).getX() - posicionXSnake)) + Math.abs(obstacles.get(i).getY() - posicionYSnake)));
+//				
+
+				if (Math.abs((posicionX - posicionXSnake))
+						+ Math.abs((posicionY - posicionYSnake)) > Math.abs((obstacles.get(i).getX() - posicionXSnake))
+								+ Math.abs(obstacles.get(i).getY() - posicionYSnake)) {
+					// System.out.println("se reemplaza el valor por: " + obstacles.get(i));
+					posicionX = obstacles.get(i).getX();
+					posicionY = obstacles.get(i).getY();
+				}
+			}
+
+			boolean comprobarQueNoChocaIzquierda = snake.get(0).getX() - 1 != posicionX
+					|| snake.get(0).getY() != posicionY;
+			boolean comprobarQueNoChocaAbajo = snake.get(0).getX() != posicionX || snake.get(0).getY() - 1 != posicionY;
+			boolean comprobarQueNoChocaArriba = snake.get(0).getX() != posicionX
+					|| snake.get(0).getY() + 1 != posicionY;
+			boolean comprobarQueNoChocaDerecha = snake.get(0).getX() + 1 != posicionX
+					|| snake.get(0).getY() != posicionY;
+
 			// fruta a la izquierda
 			if (snake.get(0).getX() > masCercanaX) {
-
 				/*
 				 * comprueba que el movimiento anterior no fue el contrario al que se quiere
 				 * hacer. Si lo es, se mueve a otro lado
 				 */
-				if (!previous.equals(Direction.RIGHT)) {
+
+				if (!previous.equals(Direction.RIGHT) && comprobarQueNoChocaIzquierda) {
+
 					return Direction.LEFT;
 				} else {
 					// hay buscar la manera de que decida correctamente a donde
-					//deberia haber una comprobacion que busque que donde mueve no hay nada
-					return Direction.UP;
+					// deberia haber una comprobacion que busque que donde mueve no hay nada
+
+					if (comprobarQueNoChocaArriba) {
+						return Direction.UP;
+					} else {
+						return Direction.DOWN;
+					}
 				}
 
 			} else if (snake.get(0).getX() < masCercanaX) {
@@ -82,7 +116,7 @@ public class MyBrain extends Brain {
 				 * comprueba que el movimiento anterior no fue el contrario al que se quiere
 				 * hacer. Si lo es, se mueve a otro lado
 				 */
-				if (!previous.equals(Direction.LEFT)) {
+				if (!previous.equals(Direction.LEFT) && comprobarQueNoChocaDerecha) {
 					return Direction.RIGHT;
 				} else {
 					// hay buscar la manera de que decida correctamente a donde
@@ -94,10 +128,13 @@ public class MyBrain extends Brain {
 					 * comprueba que el movimiento anterior no fue el contrario al que se quiere
 					 * hacer. Si lo es, se mueve a otro lado
 					 */
-					if (!previous.equals(Direction.UP)) {
+
+					if (!previous.equals(Direction.UP) && comprobarQueNoChocaAbajo) {
+
 						return Direction.DOWN;
 					} else {
 						// hay buscar la manera de que decida correctamente a donde
+
 						return Direction.RIGHT;
 					}
 				} else if (snake.get(0).getY() < masCercanaY) {
@@ -106,10 +143,12 @@ public class MyBrain extends Brain {
 					 * comprueba que el movimiento anterior no fue el contrario al que se quiere
 					 * hacer. Si lo es, se mueve a otro lado
 					 */
-					if (!previous.equals(Direction.DOWN)) {
+					if (!previous.equals(Direction.DOWN) && comprobarQueNoChocaArriba) {
+
 						return Direction.UP;
 					} else {
 						// hay buscar la manera de que decida correctamente a donde
+
 						return Direction.LEFT;
 					}
 				}
@@ -185,7 +224,6 @@ public class MyBrain extends Brain {
 	class Posicion {
 		int x, y;
 	}
-
 
 	public void buscarCosaMasCercana(List<Point> cosa, int x, int y) {
 
