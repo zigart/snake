@@ -33,9 +33,7 @@ public class MyBrain extends Brain {
 		// el mayor tiempo posible.
 
 		int[] posicionXY = new int[2];
-		
-		posicionXY = buscarCosaMasCercana(snake,fruits);
-		
+		posicionXY = buscarCosaMasCercana(snake, fruits);
 		return moveToFruit(snake, obstacles, posicionXY[0], posicionXY[1], previous);
 
 	}
@@ -44,14 +42,14 @@ public class MyBrain extends Brain {
 			Direction previous) {
 		// comprueba si la vivorita esta en el mismo lugar, si no lo esta ejecuta
 		while (snake.get(0).getX() != masCercanaX || snake.get(0).getY() != masCercanaY) {
+
 			int[] posicionXY = new int[2];
-		
-			posicionXY = buscarCosaMasCercana(snake,obstacles);
-			
-			System.out.println(posicionXY[0] + " valores cy " + posicionXY[1]);
+			posicionXY = buscarCosaMasCercana(snake, obstacles);
+
 			boolean comprobarQueNoChocaIzquierda = snake.get(0).getX() - 1 != posicionXY[0]
 					|| snake.get(0).getY() != posicionXY[1];
-			boolean comprobarQueNoChocaAbajo = snake.get(0).getX() != posicionXY[0] || snake.get(0).getY() - 1 != posicionXY[1];
+			boolean comprobarQueNoChocaAbajo = snake.get(0).getX() != posicionXY[0]
+					|| snake.get(0).getY() - 1 != posicionXY[1];
 			boolean comprobarQueNoChocaArriba = snake.get(0).getX() != posicionXY[0]
 					|| snake.get(0).getY() + 1 != posicionXY[1];
 			boolean comprobarQueNoChocaDerecha = snake.get(0).getX() + 1 != posicionXY[0]
@@ -65,7 +63,6 @@ public class MyBrain extends Brain {
 				 */
 
 				if (!previous.equals(Direction.RIGHT) && comprobarQueNoChocaIzquierda) {
-
 					return Direction.LEFT;
 				} else {
 					// hay buscar la manera de que decida correctamente a donde
@@ -73,7 +70,7 @@ public class MyBrain extends Brain {
 
 					if (comprobarQueNoChocaArriba) {
 						return Direction.UP;
-					} else {
+					} else if(comprobarQueNoChocaAbajo) {
 						return Direction.DOWN;
 					}
 				}
@@ -86,9 +83,11 @@ public class MyBrain extends Brain {
 				 */
 				if (!previous.equals(Direction.LEFT) && comprobarQueNoChocaDerecha) {
 					return Direction.RIGHT;
-				} else {
+				} else if(comprobarQueNoChocaArriba) {
 					// hay buscar la manera de que decida correctamente a donde
 					return Direction.UP;
+				}else{
+					return Direction.DOWN;
 				}
 			} else {
 				if (snake.get(0).getY() > masCercanaY) {
@@ -100,10 +99,12 @@ public class MyBrain extends Brain {
 					if (!previous.equals(Direction.UP) && comprobarQueNoChocaAbajo) {
 
 						return Direction.DOWN;
-					} else {
+					} else if(comprobarQueNoChocaDerecha) {
 						// hay buscar la manera de que decida correctamente a donde
 
 						return Direction.RIGHT;
+					}else {
+						return Direction.LEFT;
 					}
 				} else if (snake.get(0).getY() < masCercanaY) {
 
@@ -114,10 +115,12 @@ public class MyBrain extends Brain {
 					if (!previous.equals(Direction.DOWN) && comprobarQueNoChocaArriba) {
 
 						return Direction.UP;
-					} else {
+					} else if(comprobarQueNoChocaIzquierda){
 						// hay buscar la manera de que decida correctamente a donde
 
 						return Direction.LEFT;
+					}else {
+						return Direction.RIGHT;
 					}
 				}
 			}
@@ -127,26 +130,21 @@ public class MyBrain extends Brain {
 		return Direction.DOWN;
 	}
 
-
-	public int[] buscarCosaMasCercana(List<Point>snake,List<Point> cosa) {
+	public int[] buscarCosaMasCercana(List<Point> snake, List<Point> cosa) {
 		int[] positions = new int[2];
 		positions[0] = cosa.get(0).getX();
 		positions[1] = cosa.get(0).getY();
-		
-		
+
 		int posicionXSnake = snake.get(0).getX();
 		int posicionYSnake = snake.get(0).getY();
 		for (int i = 1; i < cosa.size(); i++) {
 
-			if (Math.abs((positions[0] - posicionXSnake))
-					+ Math.abs((positions[1] - posicionYSnake)) > Math.abs((cosa.get(i).getX() - posicionXSnake))
-							+ Math.abs(cosa.get(i).getY() - posicionYSnake)) {
+			if (Math.abs((positions[0] - posicionXSnake)) + Math.abs((positions[1] - posicionYSnake)) > Math
+					.abs((cosa.get(i).getX() - posicionXSnake)) + Math.abs(cosa.get(i).getY() - posicionYSnake)) {
 				positions[0] = cosa.get(i).getX();
 				positions[1] = cosa.get(i).getY();
-				System.out.println(cosa.get(i));
 			}
 		}
-		System.out.println(positions[0] + " posiciones " + positions[1]);
 		return positions;
 	}
 }
