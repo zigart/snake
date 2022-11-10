@@ -13,6 +13,8 @@ public class MyBrain extends Brain {
 
 	// Pueden agregarse todos los atributos necesarios
 	private boolean seMovioEnX = true;
+	private boolean entrarAl2 = true;
+	private int contador = 0;
 
 	public MyBrain() {
 		super("EXE");
@@ -37,9 +39,6 @@ public class MyBrain extends Brain {
 		System.out.println(head);
 		posicionXY = buscarCosaMasCercana(head, fruits);
 		Point frutaMasCercana = new Point(posicionXY[0], posicionXY[1]);
-		int[] obstaculoDefrutaXYMasCercano = new int[6];
-		obstaculoDefrutaXYMasCercano = buscarCosaMasCercana(frutaMasCercana, obstacles);
-
 		return moveToFruit(snake, head, obstacles, frutaMasCercana, previous);
 
 	}
@@ -50,34 +49,75 @@ public class MyBrain extends Brain {
 		boolean[] obstaculos = buscarObstaculoEnCabeza(head, obstacles);
 		System.out.println("Obstaculos de moveToFruit: " + Arrays.toString(obstaculos));
 		
-		
+		if (head.getX() > frutaMasCercana.getX()) {
+			/*
+			 * comprueba que el movimiento anterior no fue el contrario al que se quiere
+			 * hacer. Si lo es, se mueve a otro lado
+			 */
 
-			if (frutaMasCercana.getY() > head.getY() && !obstaculos[0]) {
-				seMovioEnX = !seMovioEnX;
-				System.out.println("Para arriba");
+			if (previous.compatibleWith(Direction.LEFT) && !obstaculos[3]) {
+				return Direction.LEFT;
+			} else {
+				// hay buscar la manera de que decida correctamente a donde
+				// deberia haber una comprobacion que busque que donde mueve no hay nada
+
+				if (!obstaculos[2]) {
+					return Direction.DOWN;
+				} else if (!obstaculos[0]) {
+					return Direction.UP;
+
+				}
+			}
+
+		} else if (snake.get(0).getX() < frutaMasCercana.getX()) {
+
+			/*
+			 * comprueba que el movimiento anterior no fue el contrario al que se quiere
+			 * hacer. Si lo es, se mueve a otro lado
+			 */
+			if (previous.compatibleWith(Direction.RIGHT) && !obstaculos[1]
+					) {
+				return Direction.RIGHT;
+			} else if (!obstaculos[0] && previous.compatibleWith(Direction.UP)) {
+				// hay buscar la manera de que decida correctamente a donde
 				return Direction.UP;
+			} else {
+				
+					return Direction.DOWN;
+				}
+			} else {
+			if (head.getY() > frutaMasCercana.getY()) {
+				/*
+				 * comprueba que el movimiento anterior no fue el contrario al que se quiere
+				 * hacer. Si lo es, se mueve a otro lado
+				 */
+
+				if (previous.compatibleWith(Direction.DOWN) && !obstaculos[2]) {
+					return Direction.DOWN;
+				} else if (!obstaculos[1] && previous.compatibleWith(Direction.RIGHT)) {
+					// hay buscar la manera de que decida correctamente a donde
+					return Direction.RIGHT;
+				} else {
+						return Direction.LEFT;
+				}
+			} else if (head.getY() < frutaMasCercana.getY()) {
+
+				/*
+				 * comprueba que el movimiento anterior no fue el contrario al que se quiere
+				 * hacer. Si lo es, se mueve a otro lado
+				 */
+				if (previous.compatibleWith(Direction.UP) && !obstaculos[0]) {
+					System.out.println("SOY EL QUE VA PARA ARRIBA");
+					return Direction.UP;
+				} else if (!obstaculos[3] && previous.compatibleWith(Direction.LEFT)) {
+					// hay buscar la manera de que decida correctamente a donde
+					return Direction.LEFT;
+				}else if(!obstaculos[1]&& previous.compatibleWith(Direction.RIGHT)) {
+					return Direction.RIGHT;
+				}
 			}
-			if (frutaMasCercana.getY() < head.getY() && !obstaculos[2]) {
-				seMovioEnX = !seMovioEnX;
-				System.out.println("ABAJO");
-				return Direction.DOWN;
-			}
-
-		
-
-		if (frutaMasCercana.getX() > head.getX() && !obstaculos[1]) {
-			seMovioEnX = !seMovioEnX;
-			System.out.println("A LA DERECHA");
-			return Direction.RIGHT;
 		}
-
-		if (frutaMasCercana.getX() < head.getX() && !obstaculos[3]) {
-			seMovioEnX = !seMovioEnX;
-			System.out.println("A LA IZQUIERDA");
-			return Direction.LEFT;
-		}
-
-		return previous;
+	return Direction.DOWN;
 
 	}
 
@@ -90,6 +130,14 @@ public class MyBrain extends Brain {
 		boolean obstaculoOeste = false;
 
 		for (int i = 0; i < obstaculo.size(); i++) {
+			System.out.println("NORTE: " + (head.getX()) + " " + obstaculo.get(i).getX() + "y: " + (head.getY() + 1)
+					+ " " + (obstaculo.get(i).getY()));
+			System.out.println("SUR: " + (head.getX()) + " " + obstaculo.get(i).getX() + "y: " + (head.getY() - 1) + " "
+					+ (obstaculo.get(i).getY()));
+			System.out.println("ESTE: " + (head.getX() + 1) + " " + obstaculo.get(i).getX() + " y: " + (head.getY())
+					+ " " + (obstaculo.get(i).getY()));
+			System.out.println("OESTE: " + (head.getX() - 1) + " " + obstaculo.get(i).getX() + " y: " + (head.getY())
+					+ " " + (obstaculo.get(i).getY()));
 
 			if (obstaculo.get(i).getX() == head.getX() + 1 && obstaculo.get(i).getY() == head.getY()) {
 				obstaculoEste = true;
@@ -115,14 +163,10 @@ public class MyBrain extends Brain {
 	}
 
 	public int[] buscarCosaMasCercana(Point snake, List<Point> cosa) {
-		int[] positions = new int[6];
+		int[] positions = new int[2];
 		positions[0] = cosa.get(0).getX();
 		positions[1] = cosa.get(0).getY();
-		positions[2] = cosa.get(0).getX();
-		positions[3] = cosa.get(0).getY();
-		positions[4] = cosa.get(0).getX();
-		positions[5] = cosa.get(0).getY();
-		int valorABorrar = 0;
+
 		int posicionXSnake = snake.getX();
 		int posicionYSnake = snake.getY();
 		for (int i = 1; i < cosa.size(); i++) {
@@ -130,35 +174,6 @@ public class MyBrain extends Brain {
 					.abs((cosa.get(i).getX() - posicionXSnake)) + Math.abs(cosa.get(i).getY() - posicionYSnake)) {
 				positions[0] = cosa.get(i).getX();
 				positions[1] = cosa.get(i).getY();
-				valorABorrar = i;
-			}
-		}
-
-		if (cosa.size() > 1) {
-
-			cosa.remove(valorABorrar);
-
-			for (int i = 1; i < cosa.size(); i++) {
-				if (Math.abs((positions[2] - posicionXSnake)) + Math.abs((positions[3] - posicionYSnake)) > Math
-						.abs((cosa.get(i).getX() - posicionXSnake)) + Math.abs(cosa.get(i).getY() - posicionYSnake)) {
-					positions[2] = cosa.get(i).getX();
-					positions[3] = cosa.get(i).getY();
-					valorABorrar = i;
-				}
-			}
-		}
-
-		if (cosa.size() > 1) {
-
-			cosa.remove(valorABorrar);
-
-			for (int i = 1; i < cosa.size(); i++) {
-				if (Math.abs((positions[4] - posicionXSnake)) + Math.abs((positions[5] - posicionYSnake)) > Math
-						.abs((cosa.get(i).getX() - posicionXSnake)) + Math.abs(cosa.get(i).getY() - posicionYSnake)) {
-					positions[4] = cosa.get(i).getX();
-					positions[5] = cosa.get(i).getY();
-					valorABorrar = i;
-				}
 			}
 		}
 
