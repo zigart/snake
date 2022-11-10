@@ -32,7 +32,7 @@ public class MyBrain extends Brain {
 		// completar con la lógica necesaria para mover la serpiente,
 		// intentando comer la mayor cantidad de frutas y sobrevivir
 		// el mayor tiempo posible.
-
+		System.out.println(previous);
 		int[] posicionXY = new int[2];
 		System.out.println(head);
 		posicionXY = buscarCosaMasCercana(head, fruits);
@@ -46,31 +46,35 @@ public class MyBrain extends Brain {
 
 	private Direction moveToFruit(List<Point> snake, Point head, List<Point> obstacles, Point frutaMasCercana,
 			Direction previous) {
+		// revisar primer movimiento
+		boolean[] obstaculos = buscarObstaculoEnCabeza(head, obstacles);
+		System.out.println("Obstaculos de moveToFruit: " + Arrays.toString(obstaculos));
+		
+		
 
-		System.out.println("fruta mas cercana " + frutaMasCercana);
-
-		if (seMovioEnX) {
-
-			if (frutaMasCercana.getY() > head.getY()) {
+			if (frutaMasCercana.getY() > head.getY() && !obstaculos[0]) {
 				seMovioEnX = !seMovioEnX;
+				System.out.println("Para arriba");
 				return Direction.UP;
 			}
-			if (frutaMasCercana.getY() < head.getY()) {
+			if (frutaMasCercana.getY() < head.getY() && !obstaculos[2]) {
 				seMovioEnX = !seMovioEnX;
+				System.out.println("ABAJO");
 				return Direction.DOWN;
 			}
 
-		} else {
+		
 
-			if (frutaMasCercana.getX() > head.getX()) {
-				seMovioEnX = !seMovioEnX;
-				return Direction.RIGHT;
-			}
+		if (frutaMasCercana.getX() > head.getX() && !obstaculos[1]) {
+			seMovioEnX = !seMovioEnX;
+			System.out.println("A LA DERECHA");
+			return Direction.RIGHT;
+		}
 
-			if (frutaMasCercana.getX() < head.getX()) {
-				seMovioEnX = !seMovioEnX;
-				return Direction.LEFT;
-			}
+		if (frutaMasCercana.getX() < head.getX() && !obstaculos[3]) {
+			seMovioEnX = !seMovioEnX;
+			System.out.println("A LA IZQUIERDA");
+			return Direction.LEFT;
 		}
 
 		return previous;
@@ -78,37 +82,36 @@ public class MyBrain extends Brain {
 	}
 
 	private boolean[] buscarObstaculoEnCabeza(Point head, List<Point> obstaculo) {
-		int[] obstaculosCercanos = new int[6];
-		obstaculosCercanos = buscarCosaMasCercana(head, obstaculo);
-		boolean obstaculoNorte;
-		boolean obstaculoSur;
-		boolean obstaculoEste;
-		boolean obstaculoOeste;
 
-		for (int i = 0; i < obstaculosCercanos.length; i++) {
+		System.out.println(head);
+		boolean obstaculoNorte = false;
+		boolean obstaculoSur = false;
+		boolean obstaculoEste = false;
+		boolean obstaculoOeste = false;
 
-			if (i % 2 == 0) {
-				if (head.getX() + 1 == obstaculosCercanos[i]) {
-					obstaculoEste = true;
-				}
-				
-				if (head.getX() - 1 == obstaculosCercanos[i]) {
-					obstaculoOeste = true;
-				}
-			}else {
-				if (head.getY() + 1 == obstaculosCercanos[i]) {
-					obstaculoNorte = true;
-				}
-				
-				if (head.getY() - 1 == obstaculosCercanos[i]) {
-					obstaculoSur = true;
-				}
+		for (int i = 0; i < obstaculo.size(); i++) {
+
+			if (obstaculo.get(i).getX() == head.getX() + 1 && obstaculo.get(i).getY() == head.getY()) {
+				obstaculoEste = true;
 			}
-			
-			
+			if (obstaculo.get(i).getX() == head.getX() - 1 && obstaculo.get(i).getY() == head.getY()) {
+				obstaculoOeste = true;
+			}
+			if (obstaculo.get(i).getX() == head.getX() && obstaculo.get(i).getY() == head.getY() - 1) {
+				obstaculoSur = true;
+			}
+			if (obstaculo.get(i).getX() == head.getX() && obstaculo.get(i).getY() == head.getY() + 1) {
+				obstaculoNorte = true;
+			}
 		}
 
-		return true;
+		boolean[] obstaculos = new boolean[4];
+		obstaculos[0] = obstaculoNorte;
+		obstaculos[1] = obstaculoEste;
+		obstaculos[2] = obstaculoSur;
+		obstaculos[3] = obstaculoOeste;
+
+		return obstaculos;
 	}
 
 	public int[] buscarCosaMasCercana(Point snake, List<Point> cosa) {
