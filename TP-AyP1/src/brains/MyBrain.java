@@ -12,9 +12,7 @@ import edu.unlam.snake.engine.Point;
 public class MyBrain extends Brain {
 
 	// Pueden agregarse todos los atributos necesarios
-	private boolean seMovioEnX = true;
-	private int pasos = 0;
-	
+
 
 	public MyBrain() {
 		super("EXE");
@@ -39,82 +37,63 @@ public class MyBrain extends Brain {
 		System.out.println(head);
 		posicionXY = buscarCosaMasCercana(head, fruits);
 		Point frutaMasCercana = new Point(posicionXY[0], posicionXY[1]);
-		return moveToFruit(snake, head, obstacles, frutaMasCercana, previous);
+		return moveToFruit(snake, head, enemies,obstacles, frutaMasCercana, previous);
 
 	}
 
-	private Direction moveToFruit(List<Point> snake, Point head, List<Point> obstacles, Point frutaMasCercana,
+	private Direction moveToFruit(List<Point> snake, Point head,List<List<Point>>enemies, List<Point> obstacles, Point frutaMasCercana,
 			Direction previous) {
 		// revisar primer movimiento
 		boolean[] obstaculos = buscarObstaculoEnCabeza(head, obstacles);
 		boolean[] parteDeSnake = buscarObstaculoEnCabeza(head, snake);
+		boolean[] snakeContraria = buscarEnemigoEnCabeza(head, enemies);
 		System.out.println("Obstaculos de moveToFruit: " + Arrays.toString(obstaculos));
-		
-		if (head.getX() > frutaMasCercana.getX()) {
-			/*
-			 * comprueba que el movimiento anterior no fue el contrario al que se quiere
-			 * hacer. Si lo es, se mueve a otro lado
-			 */
 
-			if (previous.compatibleWith(Direction.LEFT) && !obstaculos[3] && !parteDeSnake[3]) {
+		if (head.getX() > frutaMasCercana.getX()) {
+
+			if (previous.compatibleWith(Direction.LEFT) && !obstaculos[3] && !parteDeSnake[3] && !snakeContraria[3] && !snakeContraria[7]) {
 				return Direction.LEFT;
 			} else {
-				// hay buscar la manera de que decida correctamente a donde
-				// deberia haber una comprobacion que busque que donde mueve no hay nada
-
-				if (!obstaculos[2] && !parteDeSnake[2]) {
+				if (!obstaculos[2] && !parteDeSnake[2] && !snakeContraria[2] && !snakeContraria[6]) {
 					return Direction.DOWN;
-				} else if (!obstaculos[0] && !parteDeSnake[0]) {
+				} else if (!obstaculos[0] && !parteDeSnake[0] && !snakeContraria[0] && !!snakeContraria[4]) {
 					return Direction.UP;
-
+				}else {
+					return Direction.RIGHT;
 				}
 			}
 
 		} else if (snake.get(0).getX() < frutaMasCercana.getX()) {
 
-			/*
-			 * comprueba que el movimiento anterior no fue el contrario al que se quiere
-			 * hacer. Si lo es, se mueve a otro lado
-			 */
-			if (previous.compatibleWith(Direction.RIGHT) && !obstaculos[1] && !parteDeSnake[1]
-					) {
+			if (previous.compatibleWith(Direction.RIGHT) && !obstaculos[1] && !parteDeSnake[1] && !snakeContraria[1] && !snakeContraria[5]) {
 				return Direction.RIGHT;
-			} else if (!obstaculos[0] && !parteDeSnake[0] && previous.compatibleWith(Direction.UP)) {
-				// hay buscar la manera de que decida correctamente a donde
+			} else if (!obstaculos[0] && !parteDeSnake[0] && !snakeContraria[0] && previous.compatibleWith(Direction.UP) && !snakeContraria[4]) {
 				return Direction.UP;
+			}else if (!obstaculos[2] && !parteDeSnake[2] && !snakeContraria[2] && !snakeContraria[6]) {
+				return Direction.DOWN;
 			}
-			
-			} else {
+		} else {
 			if (head.getY() > frutaMasCercana.getY()) {
-				/*
-				 * comprueba que el movimiento anterior no fue el contrario al que se quiere
-				 * hacer. Si lo es, se mueve a otro lado
-				 */
-
-				if (previous.compatibleWith(Direction.DOWN) && !obstaculos[2] && !parteDeSnake[2]) {
+				if (previous.compatibleWith(Direction.DOWN) && !obstaculos[2] && !parteDeSnake[2] && !snakeContraria[2] && !snakeContraria[6]) {
 					return Direction.DOWN;
-				} else if (!obstaculos[1] && !parteDeSnake[1] && previous.compatibleWith(Direction.RIGHT)) {
-					// hay buscar la manera de que decida correctamente a donde
+				} else if (!obstaculos[1] && !parteDeSnake[1] && !snakeContraria[1] && !snakeContraria[5] && previous.compatibleWith(Direction.RIGHT)) {
 					return Direction.RIGHT;
-				} 
+				}else if (!obstaculos[3] && !parteDeSnake[3] && !snakeContraria[3] && !snakeContraria[7]) {
+					return Direction.DOWN;
+				}
 			} else if (head.getY() < frutaMasCercana.getY()) {
-
-				/*
-				 * comprueba que el movimiento anterior no fue el contrario al que se quiere
-				 * hacer. Si lo es, se mueve a otro lado
-				 */
-				if (previous.compatibleWith(Direction.UP) && !obstaculos[0] && !parteDeSnake[0]) {
+				if (previous.compatibleWith(Direction.UP) && !obstaculos[0] && !parteDeSnake[0] && !snakeContraria[0] && !snakeContraria[4]) {
 					return Direction.UP;
-				} else if (!obstaculos[3] && !parteDeSnake[3] && previous.compatibleWith(Direction.LEFT)) {
+				} else if (!obstaculos[3] && !parteDeSnake[3] && !snakeContraria[3] && !snakeContraria[7]) {
 					// hay buscar la manera de que decida correctamente a donde
 					return Direction.LEFT;
-				}else if(!obstaculos[1]&& !parteDeSnake[1] && previous.compatibleWith(Direction.RIGHT)) {
+				} else if (!obstaculos[1] && !parteDeSnake[1] && !snakeContraria[1] && !snakeContraria[5]) {
 					return Direction.RIGHT;
 				}
 			}
 		}
-		//retorna la direccion esta de forma erronea cuando no entra a los ifs
-		return Direction.UP;
+		// retorna la direccion esta de forma erronea cuando no entra a los ifs
+		return previous;
 	}
 
 	private boolean[] buscarObstaculoEnCabeza(Point head, List<Point> obstaculo) {
@@ -126,15 +105,7 @@ public class MyBrain extends Brain {
 		boolean obstaculoOeste = false;
 
 		for (int i = 0; i < obstaculo.size(); i++) {
-			System.out.println("NORTE: " + (head.getX()) + " " + obstaculo.get(i).getX() + "y: " + (head.getY() + 1)
-					+ " " + (obstaculo.get(i).getY()));
-			System.out.println("SUR: " + (head.getX()) + " " + obstaculo.get(i).getX() + "y: " + (head.getY() - 1) + " "
-					+ (obstaculo.get(i).getY()));
-			System.out.println("ESTE: " + (head.getX() + 1) + " " + obstaculo.get(i).getX() + " y: " + (head.getY())
-					+ " " + (obstaculo.get(i).getY()));
-			System.out.println("OESTE: " + (head.getX() - 1) + " " + obstaculo.get(i).getX() + " y: " + (head.getY())
-					+ " " + (obstaculo.get(i).getY()));
-
+	
 			if (obstaculo.get(i).getX() == head.getX() + 1 && obstaculo.get(i).getY() == head.getY()) {
 				obstaculoEste = true;
 			}
@@ -155,6 +126,66 @@ public class MyBrain extends Brain {
 		obstaculos[2] = obstaculoSur;
 		obstaculos[3] = obstaculoOeste;
 
+		return obstaculos;
+	}
+	private boolean[] buscarEnemigoEnCabeza(Point head, List<List<Point>> obstaculo) {
+		
+		boolean obstaculoNorte = false;
+		boolean obstaculoSur = false;
+		boolean obstaculoEste = false;
+		boolean obstaculoOeste = false;
+		
+		boolean posibleChoqueNorte = false;
+		boolean posibleChoqueSur = false;
+		boolean posibleChoqueEste = false;
+		boolean posibleChoqueOeste = false;
+
+		for (int i = 0; i < obstaculo.size(); i++) {
+		
+			for(int j = 0; j < obstaculo.get(i).size(); j++) {
+				
+			if (obstaculo.get(i).get(j).getX() == head.getX() + 1 && obstaculo.get(i).get(j).getY() == head.getY()) {
+				obstaculoEste = true;
+			}
+			if (obstaculo.get(i).get(j).getX() == head.getX() - 1 && obstaculo.get(i).get(j).getY() == head.getY()) {
+				obstaculoOeste = true;
+			}
+			if (obstaculo.get(i).get(j).getX() == head.getX() && obstaculo.get(i).get(j).getY() == head.getY() - 1) {
+				obstaculoSur = true;
+			}
+			if (obstaculo.get(i).get(j).getX() == head.getX() && obstaculo.get(i).get(j).getY() == head.getY() + 1 ) {
+				obstaculoNorte = true;
+			}
+			}
+		}
+		for (int i = 0; i < obstaculo.size(); i++) {
+			
+				if (Math.abs(obstaculo.get(i).get(0).getX() - head.getX() + 1) <= 2 && obstaculo.get(i).get(0).getY() == head.getY() ) {
+					posibleChoqueEste = true;
+				}
+				if (Math.abs(obstaculo.get(i).get(0).getX() - head.getX() - 1) <= 2  && obstaculo.get(i).get(0).getY() == head.getY()) {
+					posibleChoqueOeste = true;
+				}
+				if (obstaculo.get(i).get(0).getX() == head.getX() && Math.abs(obstaculo.get(i).get(0).getY() - head.getY() - 1) <= 2 ) {
+					posibleChoqueSur = true;
+				}
+				if (obstaculo.get(i).get(0).getX() == head.getX() && Math.abs(obstaculo.get(i).get(0).getY() - head.getY() + 1) <= 2  ) {
+					posibleChoqueNorte = true;
+				}
+
+		}
+		
+		boolean[] obstaculos = new boolean[8];
+		obstaculos[0] = obstaculoNorte;
+		obstaculos[1] = obstaculoEste;
+		obstaculos[2] = obstaculoSur;
+		obstaculos[3] = obstaculoOeste;
+		obstaculos[4] = posibleChoqueNorte;
+		obstaculos[5] = posibleChoqueEste;
+		obstaculos[6] = posibleChoqueSur;
+		obstaculos[7] = posibleChoqueOeste;
+		
+		
 		return obstaculos;
 	}
 
