@@ -13,8 +13,8 @@ public class MyBrain extends Brain {
 
 	// Pueden agregarse todos los atributos necesarios
 	private boolean seMovioEnX = true;
-	private boolean entrarAl2 = true;
-	private int contador = 0;
+	private int pasos = 0;
+	
 
 	public MyBrain() {
 		super("EXE");
@@ -47,6 +47,7 @@ public class MyBrain extends Brain {
 			Direction previous) {
 		// revisar primer movimiento
 		boolean[] obstaculos = buscarObstaculoEnCabeza(head, obstacles);
+		boolean[] parteDeSnake = buscarObstaculoEnCabeza(head, snake);
 		System.out.println("Obstaculos de moveToFruit: " + Arrays.toString(obstaculos));
 		
 		if (head.getX() > frutaMasCercana.getX()) {
@@ -55,15 +56,15 @@ public class MyBrain extends Brain {
 			 * hacer. Si lo es, se mueve a otro lado
 			 */
 
-			if (previous.compatibleWith(Direction.LEFT) && !obstaculos[3]) {
+			if (previous.compatibleWith(Direction.LEFT) && !obstaculos[3] && !parteDeSnake[3]) {
 				return Direction.LEFT;
 			} else {
 				// hay buscar la manera de que decida correctamente a donde
 				// deberia haber una comprobacion que busque que donde mueve no hay nada
 
-				if (!obstaculos[2]) {
+				if (!obstaculos[2] && !parteDeSnake[2]) {
 					return Direction.DOWN;
-				} else if (!obstaculos[0]) {
+				} else if (!obstaculos[0] && !parteDeSnake[0]) {
 					return Direction.UP;
 
 				}
@@ -75,16 +76,14 @@ public class MyBrain extends Brain {
 			 * comprueba que el movimiento anterior no fue el contrario al que se quiere
 			 * hacer. Si lo es, se mueve a otro lado
 			 */
-			if (previous.compatibleWith(Direction.RIGHT) && !obstaculos[1]
+			if (previous.compatibleWith(Direction.RIGHT) && !obstaculos[1] && !parteDeSnake[1]
 					) {
 				return Direction.RIGHT;
-			} else if (!obstaculos[0] && previous.compatibleWith(Direction.UP)) {
+			} else if (!obstaculos[0] && !parteDeSnake[0] && previous.compatibleWith(Direction.UP)) {
 				// hay buscar la manera de que decida correctamente a donde
 				return Direction.UP;
-			} else {
-				
-					return Direction.DOWN;
-				}
+			}
+			
 			} else {
 			if (head.getY() > frutaMasCercana.getY()) {
 				/*
@@ -92,33 +91,30 @@ public class MyBrain extends Brain {
 				 * hacer. Si lo es, se mueve a otro lado
 				 */
 
-				if (previous.compatibleWith(Direction.DOWN) && !obstaculos[2]) {
+				if (previous.compatibleWith(Direction.DOWN) && !obstaculos[2] && !parteDeSnake[2]) {
 					return Direction.DOWN;
-				} else if (!obstaculos[1] && previous.compatibleWith(Direction.RIGHT)) {
+				} else if (!obstaculos[1] && !parteDeSnake[1] && previous.compatibleWith(Direction.RIGHT)) {
 					// hay buscar la manera de que decida correctamente a donde
 					return Direction.RIGHT;
-				} else {
-						return Direction.LEFT;
-				}
+				} 
 			} else if (head.getY() < frutaMasCercana.getY()) {
 
 				/*
 				 * comprueba que el movimiento anterior no fue el contrario al que se quiere
 				 * hacer. Si lo es, se mueve a otro lado
 				 */
-				if (previous.compatibleWith(Direction.UP) && !obstaculos[0]) {
-					System.out.println("SOY EL QUE VA PARA ARRIBA");
+				if (previous.compatibleWith(Direction.UP) && !obstaculos[0] && !parteDeSnake[0]) {
 					return Direction.UP;
-				} else if (!obstaculos[3] && previous.compatibleWith(Direction.LEFT)) {
+				} else if (!obstaculos[3] && !parteDeSnake[3] && previous.compatibleWith(Direction.LEFT)) {
 					// hay buscar la manera de que decida correctamente a donde
 					return Direction.LEFT;
-				}else if(!obstaculos[1]&& previous.compatibleWith(Direction.RIGHT)) {
+				}else if(!obstaculos[1]&& !parteDeSnake[1] && previous.compatibleWith(Direction.RIGHT)) {
 					return Direction.RIGHT;
 				}
 			}
 		}
-	return Direction.DOWN;
-
+		//retorna la direccion esta de forma erronea cuando no entra a los ifs
+		return Direction.UP;
 	}
 
 	private boolean[] buscarObstaculoEnCabeza(Point head, List<Point> obstaculo) {
