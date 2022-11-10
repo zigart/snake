@@ -63,7 +63,7 @@ public class MyBrain extends Brain {
 				}
 			}
 
-		} else if (snake.get(0).getX() < frutaMasCercana.getX()) {
+		} else if (head.getX() < frutaMasCercana.getX()) {
 
 			if (previous.compatibleWith(Direction.RIGHT) && !obstaculos[1] && !parteDeSnake[1] && !snakeContraria[1] && !snakeContraria[5]) {
 				return Direction.RIGHT;
@@ -98,7 +98,6 @@ public class MyBrain extends Brain {
 
 	private boolean[] buscarObstaculoEnCabeza(Point head, List<Point> obstaculo) {
 
-		System.out.println(head);
 		boolean obstaculoNorte = false;
 		boolean obstaculoSur = false;
 		boolean obstaculoEste = false;
@@ -160,10 +159,10 @@ public class MyBrain extends Brain {
 		}
 		for (int i = 0; i < obstaculo.size(); i++) {
 			
-				if (Math.abs(obstaculo.get(i).get(0).getX() - head.getX() + 1) <= 2 && obstaculo.get(i).get(0).getY() == head.getY() ) {
+				if (Math.abs(obstaculo.get(i).get(0).getX() - head.getX() + 2) <= 2 && obstaculo.get(i).get(0).getY() == head.getY() ) {
 					posibleChoqueEste = true;
 				}
-				if (Math.abs(obstaculo.get(i).get(0).getX() - head.getX() - 1) <= 2  && obstaculo.get(i).get(0).getY() == head.getY()) {
+				if (Math.abs(obstaculo.get(i).get(0).getX() - head.getX() - 2) <= 2  && obstaculo.get(i).get(0).getY() == head.getY()) {
 					posibleChoqueOeste = true;
 				}
 				if (obstaculo.get(i).get(0).getX() == head.getX() && Math.abs(obstaculo.get(i).get(0).getY() - head.getY() - 1) <= 2 ) {
