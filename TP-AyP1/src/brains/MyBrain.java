@@ -1,7 +1,5 @@
 package brains;
 
-import java.lang.reflect.Array;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -11,8 +9,30 @@ import edu.unlam.snake.engine.Point;
 
 public class MyBrain extends Brain {
 
-	// Pueden agregarse todos los atributos necesarios
+	private static final int ABAJO = 2;
+	private static final int ARRIBA = 0;
+	private static final int IZQUIERDA = 3;
+	private static final int DERECHA = 1;
 
+	boolean[] obstaculos;
+	boolean[] parteDeSnake;
+	boolean[] snakeContraria;
+	// Pueden agregarse todos los atributos necesarios
+	boolean flag = true;
+	// 🤔 = parcialmente
+	// 1. Buscar fruta mas cercana con el recorrido mas rapido. 🤔
+	// 2. Comprobar a su alrededor que no haya ningun objeto. ✔
+	// 3. Comprobar que en su proximo movimiento no hay cuerpo enemigo o que no van
+	// a colisionar 🤔
+	// las cabezas
+	// 4. Comprobar que no choque con su propio cuerpo
+	// 5. Comprobar que en modo battle royale tratar de mantenerse lejos de los
+	// bordes.
+	// 6. Comprobar que no se encierra sola, verificando que a 2 casilleros del head
+	// no queda
+	// entre su cuerpo y algo.
+	// buscar otra logica para el 6 como por ejemplo girar cuando tiene cierto largo
+	// 7. Realizar el movimiento validando las comprobaciones anteriores.
 
 	public MyBrain() {
 		super("EXE");
@@ -33,70 +53,69 @@ public class MyBrain extends Brain {
 		// intentando comer la mayor cantidad de frutas y sobrevivir
 		// el mayor tiempo posible.
 		System.out.println(previous);
-		int[] posicionXY = new int[2];
-		System.out.println(head);
-		posicionXY = buscarCosaMasCercana(head, fruits);
-		Point frutaMasCercana = new Point(posicionXY[0], posicionXY[1]);
-		return moveToFruit(snake, head, enemies,obstacles, frutaMasCercana, previous);
+		Point frutaMasCercana = buscarCosaMasCercana(head, fruits);
+		return moveToFruit(snake, head, enemies, obstacles, frutaMasCercana, previous);
 
 	}
 
-	private Direction moveToFruit(List<Point> snake, Point head,List<List<Point>>enemies, List<Point> obstacles, Point frutaMasCercana,
-			Direction previous) {
-		// revisar primer movimiento
-		boolean[] obstaculos = buscarObstaculoEnCabeza(head, obstacles);
-		boolean[] parteDeSnake = buscarObstaculoEnCabeza(head, snake);
-		boolean[] snakeContraria = buscarEnemigoEnCabeza(head, enemies);
-		System.out.println("Obstaculos de moveToFruit: " + Arrays.toString(obstaculos));
+	private Direction moveToFruit(List<Point> snake, Point head, List<List<Point>> enemies, List<Point> obstacles,
+			Point frutaMasCercana, Direction previous) {
+		// sacar las declaraciones afuera
+		obstaculos = buscarObstaculoEnMiCabeza(head, obstacles);
+		parteDeSnake = buscarObstaculoEnMiCabeza(head, snake);
+		snakeContraria = buscarEnemigoCercaDeMiCabeza(head, enemies);
 
 		if (head.getX() > frutaMasCercana.getX()) {
-
-			if (previous.compatibleWith(Direction.LEFT) && !obstaculos[3] && !parteDeSnake[3] && !snakeContraria[3] && !snakeContraria[7]) {
+			if (!estaOcupado(IZQUIERDA)) {
 				return Direction.LEFT;
+			} else if (!estaOcupado(ABAJO)) {
+				return Direction.DOWN;
+			} else if (!estaOcupado(ARRIBA)) {
+				return Direction.UP;
 			} else {
-				if (!obstaculos[2] && !parteDeSnake[2] && !snakeContraria[2] && !snakeContraria[6]) {
-					return Direction.DOWN;
-				} else if (!obstaculos[0] && !parteDeSnake[0] && !snakeContraria[0] && !!snakeContraria[4]) {
-					return Direction.UP;
-				}else {
-					return Direction.RIGHT;
-				}
+				return Direction.RIGHT;
 			}
 
-		} else if (head.getX() < frutaMasCercana.getX()) {
+		} else if (head.getX() < frutaMasCercana.getX())
 
-			if (previous.compatibleWith(Direction.RIGHT) && !obstaculos[1] && !parteDeSnake[1] && !snakeContraria[1] && !snakeContraria[5]) {
+		{
+			if (!estaOcupado(DERECHA)) {
 				return Direction.RIGHT;
-			} else if (!obstaculos[0] && !parteDeSnake[0] && !snakeContraria[0] && previous.compatibleWith(Direction.UP) && !snakeContraria[4]) {
+			} else if (!estaOcupado(ARRIBA)) {
 				return Direction.UP;
-			}else if (!obstaculos[2] && !parteDeSnake[2] && !snakeContraria[2] && !snakeContraria[6]) {
+			} else if (!estaOcupado(ABAJO)) {
 				return Direction.DOWN;
+			} else {
+				return Direction.LEFT;
 			}
 		} else {
 			if (head.getY() > frutaMasCercana.getY()) {
-				if (previous.compatibleWith(Direction.DOWN) && !obstaculos[2] && !parteDeSnake[2] && !snakeContraria[2] && !snakeContraria[6]) {
+				if (!estaOcupado(ABAJO)) {
 					return Direction.DOWN;
-				} else if (!obstaculos[1] && !parteDeSnake[1] && !snakeContraria[1] && !snakeContraria[5] && previous.compatibleWith(Direction.RIGHT)) {
+				} else if (!estaOcupado(DERECHA)) {
 					return Direction.RIGHT;
-				}else if (!obstaculos[3] && !parteDeSnake[3] && !snakeContraria[3] && !snakeContraria[7]) {
-					return Direction.DOWN;
+				} else if (!estaOcupado(IZQUIERDA)) {
+					return Direction.LEFT;
+				} else {
+					return Direction.UP;
 				}
 			} else if (head.getY() < frutaMasCercana.getY()) {
-				if (previous.compatibleWith(Direction.UP) && !obstaculos[0] && !parteDeSnake[0] && !snakeContraria[0] && !snakeContraria[4]) {
+				if (!estaOcupado(ARRIBA)) {
 					return Direction.UP;
-				} else if (!obstaculos[3] && !parteDeSnake[3] && !snakeContraria[3] && !snakeContraria[7]) {
+				} else if (!estaOcupado(IZQUIERDA)) {
 					// hay buscar la manera de que decida correctamente a donde
 					return Direction.LEFT;
-				} else if (!obstaculos[1] && !parteDeSnake[1] && !snakeContraria[1] && !snakeContraria[5]) {
+				} else if (!estaOcupado(DERECHA)) {
 					return Direction.RIGHT;
+				} else {
+					return Direction.DOWN;
 				}
 			}
 		}
-		// retorna la direccion esta de forma erronea cuando no entra a los ifs
 		return previous;
 	}
 
-	private boolean[] buscarObstaculoEnCabeza(Point head, List<Point> obstaculo) {
+	private boolean[] buscarObstaculoEnMiCabeza(Point head, List<Point> obstaculo) {
 
 		boolean obstaculoNorte = false;
 		boolean obstaculoSur = false;
@@ -104,7 +123,7 @@ public class MyBrain extends Brain {
 		boolean obstaculoOeste = false;
 
 		for (int i = 0; i < obstaculo.size(); i++) {
-	
+
 			if (obstaculo.get(i).getX() == head.getX() + 1 && obstaculo.get(i).getY() == head.getY()) {
 				obstaculoEste = true;
 			}
@@ -120,91 +139,73 @@ public class MyBrain extends Brain {
 		}
 
 		boolean[] obstaculos = new boolean[4];
-		obstaculos[0] = obstaculoNorte;
-		obstaculos[1] = obstaculoEste;
-		obstaculos[2] = obstaculoSur;
-		obstaculos[3] = obstaculoOeste;
-
+		obstaculos[ARRIBA] = obstaculoNorte;
+		obstaculos[DERECHA] = obstaculoEste;
+		obstaculos[ABAJO] = obstaculoSur;
+		obstaculos[IZQUIERDA] = obstaculoOeste;
 		return obstaculos;
 	}
-	private boolean[] buscarEnemigoEnCabeza(Point head, List<List<Point>> obstaculo) {
-		
+
+	private boolean[] buscarEnemigoCercaDeMiCabeza(Point head, List<List<Point>> obstaculo) {
+
 		boolean obstaculoNorte = false;
-		boolean obstaculoSur = false;
+		boolean obstaculoSur = false; 
 		boolean obstaculoEste = false;
 		boolean obstaculoOeste = false;
-		
-		boolean posibleChoqueNorte = false;
-		boolean posibleChoqueSur = false;
-		boolean posibleChoqueEste = false;
-		boolean posibleChoqueOeste = false;
 
 		for (int i = 0; i < obstaculo.size(); i++) {
-		
-			for(int j = 0; j < obstaculo.get(i).size(); j++) {
-				
-			if (obstaculo.get(i).get(j).getX() == head.getX() + 1 && obstaculo.get(i).get(j).getY() == head.getY()) {
-				obstaculoEste = true;
-			}
-			if (obstaculo.get(i).get(j).getX() == head.getX() - 1 && obstaculo.get(i).get(j).getY() == head.getY()) {
-				obstaculoOeste = true;
-			}
-			if (obstaculo.get(i).get(j).getX() == head.getX() && obstaculo.get(i).get(j).getY() == head.getY() - 1) {
-				obstaculoSur = true;
-			}
-			if (obstaculo.get(i).get(j).getX() == head.getX() && obstaculo.get(i).get(j).getY() == head.getY() + 1 ) {
-				obstaculoNorte = true;
-			}
-			}
-		}
-		for (int i = 0; i < obstaculo.size(); i++) {
-			
-				if (Math.abs(obstaculo.get(i).get(0).getX() - head.getX() + 2) <= 2 && obstaculo.get(i).get(0).getY() == head.getY() ) {
-					posibleChoqueEste = true;
-				}
-				if (Math.abs(obstaculo.get(i).get(0).getX() - head.getX() - 2) <= 2  && obstaculo.get(i).get(0).getY() == head.getY()) {
-					posibleChoqueOeste = true;
-				}
-				if (obstaculo.get(i).get(0).getX() == head.getX() && Math.abs(obstaculo.get(i).get(0).getY() - head.getY() - 1) <= 2 ) {
-					posibleChoqueSur = true;
-				}
-				if (obstaculo.get(i).get(0).getX() == head.getX() && Math.abs(obstaculo.get(i).get(0).getY() - head.getY() + 1) <= 2  ) {
-					posibleChoqueNorte = true;
-				}
 
+			for (int j = 0; j < obstaculo.get(i).size(); j++) {
+
+				if (obstaculo.get(i).get(j).getX() == head.getX() + 1
+						&& obstaculo.get(i).get(j).getY() == head.getY()) {
+					obstaculoEste = true;
+				}
+				if (obstaculo.get(i).get(j).getX() == head.getX() - 1
+						&& obstaculo.get(i).get(j).getY() == head.getY()) {
+					obstaculoOeste = true;
+				}
+				if (obstaculo.get(i).get(j).getX() == head.getX()
+						&& obstaculo.get(i).get(j).getY() == head.getY() - 1) {
+					obstaculoSur = true;
+				}
+				if (obstaculo.get(i).get(j).getX() == head.getX()
+						&& obstaculo.get(i).get(j).getY() == head.getY() + 1) {
+					obstaculoNorte = true;
+				}
+			}
 		}
-		
-		boolean[] obstaculos = new boolean[8];
-		obstaculos[0] = obstaculoNorte;
-		obstaculos[1] = obstaculoEste;
-		obstaculos[2] = obstaculoSur;
-		obstaculos[3] = obstaculoOeste;
-		obstaculos[4] = posibleChoqueNorte;
-		obstaculos[5] = posibleChoqueEste;
-		obstaculos[6] = posibleChoqueSur;
-		obstaculos[7] = posibleChoqueOeste;
-		
-		
+
+		boolean[] obstaculos = new boolean[4];
+		obstaculos[ARRIBA] = obstaculoNorte;
+		obstaculos[DERECHA] = obstaculoEste;
+		obstaculos[ABAJO] = obstaculoSur;
+		obstaculos[IZQUIERDA] = obstaculoOeste;
 		return obstaculos;
 	}
 
-	public int[] buscarCosaMasCercana(Point snake, List<Point> cosa) {
-		int[] positions = new int[2];
-		positions[0] = cosa.get(0).getX();
-		positions[1] = cosa.get(0).getY();
+	public Point buscarCosaMasCercana(Point origen, List<Point> cosa) {
 
-		int posicionXSnake = snake.getX();
-		int posicionYSnake = snake.getY();
+		Point position = cosa.get(0).clone();
+		// hacer clase privada con esto
+		int distancia = Math.abs((position.getX() - origen.getX())) + Math.abs((position.getY() - origen.getY()));
+
 		for (int i = 1; i < cosa.size(); i++) {
-			if (Math.abs((positions[0] - posicionXSnake)) + Math.abs((positions[1] - posicionYSnake)) > Math
-					.abs((cosa.get(i).getX() - posicionXSnake)) + Math.abs(cosa.get(i).getY() - posicionYSnake)) {
-				positions[0] = cosa.get(i).getX();
-				positions[1] = cosa.get(i).getY();
+
+			int nuevaDistancia = Math.abs((cosa.get(i).getX() - origen.getX()))
+					+ Math.abs((cosa.get(i).getY() - origen.getY()));
+
+			if (distancia > nuevaDistancia) {
+				distancia = nuevaDistancia;
+				position = cosa.get(i).clone();
 			}
 		}
 
-		System.out.println("dentro del metodo: " + Arrays.toString(positions));
-		return positions;
+		return position;
+	}
+
+	private boolean estaOcupado(int direccion) {
+		return obstaculos[direccion] || parteDeSnake[direccion] || snakeContraria[direccion];
 	}
 
 }
