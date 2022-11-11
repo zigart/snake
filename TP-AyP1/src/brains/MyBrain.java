@@ -1,6 +1,7 @@
 package brains;
 
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 
 import edu.unlam.snake.brain.Brain;
@@ -60,9 +61,13 @@ public class MyBrain extends Brain {
 
 	private Direction moveToFruit(List<Point> snake, Point head, List<List<Point>> enemies, List<Point> obstacles,
 			Point frutaMasCercana, Direction previous) {
-		// sacar las declaraciones afuera
-		obstaculos = buscarObstaculoEnMiCabeza(head, obstacles);
-		parteDeSnake = buscarObstaculoEnMiCabeza(head, snake);
+
+		List<List<Point>> colisionesPosiblesObstaculos = new LinkedList();
+		colisionesPosiblesObstaculos.add(obstacles);
+		obstaculos = buscarEnemigoCercaDeMiCabeza(head, colisionesPosiblesObstaculos);
+		List<List<Point>> colisionesPosiblesSnake = new LinkedList();
+		colisionesPosiblesSnake.add(snake);
+		parteDeSnake = buscarEnemigoCercaDeMiCabeza(head, colisionesPosiblesSnake);
 		snakeContraria = buscarEnemigoCercaDeMiCabeza(head, enemies);
 
 		if (head.getX() > frutaMasCercana.getX()) {
@@ -72,12 +77,12 @@ public class MyBrain extends Brain {
 				return Direction.DOWN;
 			} else if (!estaOcupado(ARRIBA)) {
 				return Direction.UP;
-			} else {
+			} else if(!estaOcupado(DERECHA)) {
 				return Direction.RIGHT;
 			}
 
 		} else if (head.getX() < frutaMasCercana.getX())
-
+			
 		{
 			if (!estaOcupado(DERECHA)) {
 				return Direction.RIGHT;
@@ -85,7 +90,7 @@ public class MyBrain extends Brain {
 				return Direction.UP;
 			} else if (!estaOcupado(ABAJO)) {
 				return Direction.DOWN;
-			} else {
+			} else if(!estaOcupado(IZQUIERDA)) {
 				return Direction.LEFT;
 			}
 		} else {
@@ -96,7 +101,7 @@ public class MyBrain extends Brain {
 					return Direction.RIGHT;
 				} else if (!estaOcupado(IZQUIERDA)) {
 					return Direction.LEFT;
-				} else {
+				} else if(!estaOcupado(ARRIBA)) {
 					return Direction.UP;
 				}
 			} else if (head.getY() < frutaMasCercana.getY()) {
@@ -107,49 +112,40 @@ public class MyBrain extends Brain {
 					return Direction.LEFT;
 				} else if (!estaOcupado(DERECHA)) {
 					return Direction.RIGHT;
-				} else {
+				} else if(!estaOcupado(ABAJO)) {
 					return Direction.DOWN;
 				}
 			}
 		}
+		System.out.println("LLEGO AL PREV");
 		return previous;
 	}
 
-	private boolean[] buscarObstaculoEnMiCabeza(Point head, List<Point> obstaculo) {
-
-		boolean obstaculoNorte = false;
-		boolean obstaculoSur = false;
-		boolean obstaculoEste = false;
-		boolean obstaculoOeste = false;
-
-		for (int i = 0; i < obstaculo.size(); i++) {
-
-			if (obstaculo.get(i).getX() == head.getX() + 1 && obstaculo.get(i).getY() == head.getY()) {
-				obstaculoEste = true;
-			}
-			if (obstaculo.get(i).getX() == head.getX() - 1 && obstaculo.get(i).getY() == head.getY()) {
-				obstaculoOeste = true;
-			}
-			if (obstaculo.get(i).getX() == head.getX() && obstaculo.get(i).getY() == head.getY() - 1) {
-				obstaculoSur = true;
-			}
-			if (obstaculo.get(i).getX() == head.getX() && obstaculo.get(i).getY() == head.getY() + 1) {
-				obstaculoNorte = true;
-			}
-		}
-
-		boolean[] obstaculos = new boolean[4];
-		obstaculos[ARRIBA] = obstaculoNorte;
-		obstaculos[DERECHA] = obstaculoEste;
-		obstaculos[ABAJO] = obstaculoSur;
-		obstaculos[IZQUIERDA] = obstaculoOeste;
-		return obstaculos;
-	}
-
+	/*
+	 * private boolean[] buscarObstaculoEnMiCabeza(Point head, List<Point>
+	 * obstaculo) {
+	 * 
+	 * boolean obstaculoNorte = false; boolean obstaculoSur = false; boolean
+	 * obstaculoEste = false; boolean obstaculoOeste = false;
+	 * 
+	 * for (int i = 0; i < obstaculo.size(); i++) {
+	 * 
+	 * if (obstaculo.get(i).getX() == head.getX() + 1 && obstaculo.get(i).getY() ==
+	 * head.getY()) { obstaculoEste = true; } if (obstaculo.get(i).getX() ==
+	 * head.getX() - 1 && obstaculo.get(i).getY() == head.getY()) { obstaculoOeste =
+	 * true; } if (obstaculo.get(i).getX() == head.getX() && obstaculo.get(i).getY()
+	 * == head.getY() - 1) { obstaculoSur = true; } if (obstaculo.get(i).getX() ==
+	 * head.getX() && obstaculo.get(i).getY() == head.getY() + 1) { obstaculoNorte =
+	 * true; } }
+	 * 
+	 * boolean[] obstaculos = new boolean[4]; obstaculos[ARRIBA] = obstaculoNorte;
+	 * obstaculos[DERECHA] = obstaculoEste; obstaculos[ABAJO] = obstaculoSur;
+	 * obstaculos[IZQUIERDA] = obstaculoOeste; return obstaculos; }
+	 */
 	private boolean[] buscarEnemigoCercaDeMiCabeza(Point head, List<List<Point>> obstaculo) {
 
 		boolean obstaculoNorte = false;
-		boolean obstaculoSur = false; 
+		boolean obstaculoSur = false;
 		boolean obstaculoEste = false;
 		boolean obstaculoOeste = false;
 
