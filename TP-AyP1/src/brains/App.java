@@ -12,7 +12,8 @@ public class App {
 	public static void main(String[] args) {
 		GameMode gameMode = GameMode.NORMAL;
 		MyBrain myBrain = new MyBrain();
-		GameStudent.start(gameMode, 1, 1, GameDifficulty.HARD, obstacleMap(gameMode), myBrain);
+		
+		GameStudent.start(gameMode, 2, 2, GameDifficulty.HARD, obstacleMap(gameMode), myBrain );
 		// Pueden probar multiples copias de su Brain o varias copias distintas enviado
 		// un array en vez del objeto
 	}
