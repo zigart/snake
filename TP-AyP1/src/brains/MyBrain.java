@@ -60,26 +60,21 @@ public class MyBrain extends Brain {
 
 		// comprobar que no se encierra sola toma la cabeza como algo, no deberia.
 		// Arreglar
-		
-		
-		System.out.println(!comprobarQueNoSeEncierra(head, direccionesRecomendadas[0], elementosColisionables));
-		System.out.println(!comprobarQueNoSeEncierra(head, direccionesRecomendadas[1], elementosColisionables));
-		System.out.println(!comprobarQueNoSeEncierra(head, direccionesRecomendadas[2], elementosColisionables));
-		System.out.println(!comprobarQueNoSeEncierra(head, direccionesRecomendadas[3], elementosColisionables));
+
 		if (!comprobarSiHayAlgoEnCiertaDireccion(head, direccionesRecomendadas[0], elementosColisionables)
 				&& previous.compatibleWith(direccionesRecomendadas[0])
 				&& !posiblesMovimientosEnemigos(head, enemies, direccionesRecomendadas[0])
-				) {
+				&& !comprobarQueNoSeEncierra(head, direccionesRecomendadas[0], elementosColisionables)) {
 			return direccionesRecomendadas[0];
 		} else if (!comprobarSiHayAlgoEnCiertaDireccion(head, direccionesRecomendadas[1], elementosColisionables)
 				&& previous.compatibleWith(direccionesRecomendadas[1])
 				&& !posiblesMovimientosEnemigos(head, enemies, direccionesRecomendadas[1])
-				) {
+				&& !comprobarQueNoSeEncierra(head, direccionesRecomendadas[1], elementosColisionables)) {
 			return direccionesRecomendadas[1];
 		} else if (!comprobarSiHayAlgoEnCiertaDireccion(head, direccionesRecomendadas[2], elementosColisionables)
 				&& previous.compatibleWith(direccionesRecomendadas[2])
 				&& !posiblesMovimientosEnemigos(head, enemies, direccionesRecomendadas[2])
-				) {
+				&& !comprobarQueNoSeEncierra(head, direccionesRecomendadas[2], elementosColisionables)) {
 			return direccionesRecomendadas[2];
 		} else {
 			return direccionesRecomendadas[3];
@@ -310,16 +305,27 @@ public class MyBrain extends Brain {
 		Point headCopia;
 		if (direccion == Direction.UP) {
 			headCopia = new Point(head.getX(), head.getY() + 1);
-			comprobarSiHayAlgoEnCiertaDireccion(headCopia, direccion, cosa);
+			return comprobarSiLasCuatroDireccionesEstanOcupadas(headCopia, cosa);
 		} else if (direccion == Direction.DOWN) {
 			headCopia = new Point(head.getX(), head.getY() - 1);
-			comprobarSiHayAlgoEnCiertaDireccion(headCopia, direccion, cosa);
+			return comprobarSiLasCuatroDireccionesEstanOcupadas(headCopia, cosa);
 		} else if (direccion == Direction.LEFT) {
 			headCopia = new Point(head.getX() - 1, head.getY());
-			comprobarSiHayAlgoEnCiertaDireccion(headCopia, direccion, cosa);
+			return comprobarSiLasCuatroDireccionesEstanOcupadas(headCopia, cosa);
 		} else {
 			headCopia = new Point(head.getX() + 1, head.getY());
-			comprobarSiHayAlgoEnCiertaDireccion(headCopia, direccion, cosa);
+			return comprobarSiLasCuatroDireccionesEstanOcupadas(headCopia, cosa);
+		}
+	}
+	
+	private boolean comprobarSiLasCuatroDireccionesEstanOcupadas(Point head,List<List<List<Point>>> cosa ) {
+		boolean arriba =comprobarSiHayAlgoEnCiertaDireccion(head, Direction.UP, cosa);
+		boolean abajo = comprobarSiHayAlgoEnCiertaDireccion(head, Direction.DOWN, cosa);
+		boolean derecha = comprobarSiHayAlgoEnCiertaDireccion(head, Direction.RIGHT, cosa);
+		boolean izquierda = comprobarSiHayAlgoEnCiertaDireccion(head, Direction.LEFT, cosa);
+		
+		if(arriba && abajo && derecha && izquierda) {
+			return true;
 		}
 		return false;
 	}
